@@ -14,7 +14,7 @@ services:
       - N8N_BASIC_AUTH_ACTIVE=false
       - N8N_BLOCK_NODES=
       - N8N_ENABLE_EXECUTE_COMMAND=true
-      - NODE_FUNCTION_ALLOW_BUILTIN=* # Allows files and system access
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
       - NODE_FUNCTION_ALLOW_EXTERNAL=*
       - GENERIC_TIMEZONE=Asia/Kolkata
       - OPENAI_API_KEY=your_api_key_here
@@ -22,8 +22,6 @@ services:
       - n8n_data:/home/node/.n8n
       - ./workspace:/workspace
     user: root
-    # TeX Live pre-installed separately; n8n runs normally
-    # command: sh -c "apk add --no-cache texlive && n8n"
 
 volumes:
   n8n_data:
