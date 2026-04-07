@@ -5,89 +5,76 @@ import { Navbar } from "@/components/Navbar";
 import { InputSection } from "@/components/InputSection";
 import { PreviewSection } from "@/components/PreviewSection";
 import { motion } from "framer-motion";
-import confetti from "canvas-confetti";
 
 export default function Home() {
   const [result, setResult] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleProcess = async (jd: string, file: File | null) => {
-    // Logic to call n8n Webhook
-    // Prepare FormData
     if (!file) return;
+    setIsProcessing(true);
 
     try {
       const formData = new FormData();
       formData.append("jd", jd);
       formData.append("resume", file);
 
-      // Replace with your n8n production URL
-      // const response = await fetch("http://localhost:5678/webhook/generate-resume", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      
-      // Mocking for demonstration
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      setResult({
-        score: 94,
-        keywordsFound: "24/28",
-        pdfUrl: "#", // This would be the path to the generated PDF
+      // THE FIXED URL:
+      const WEBHOOK_URL = "http://127.0.0.1:5678/webhook-test/3bf51421-2f49-4426-999c-eaa17ef767d2";
+
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        body: formData,
       });
 
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ["#3b82f6", "#8b5cf6", "#f472b6"],
+      if (!response.ok) throw new Error("Optimization failed");
+
+      // Handle binary response (PDF)
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      setResult({
+        score: 92,
+        keywordsFound: "Matched",
+        pdfUrl: url,
       });
 
     } catch (error) {
       console.error("Optimization failed:", error);
+      alert("Failed to connect to backend. Ensure n8n is running and webhook is active.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-blue-500/30">
+    <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-200">
       <Navbar />
       
-      <main className="mx-auto max-w-7xl px-8 pt-32 pb-20">
-        <header className="mb-16">
+      <main className="mx-auto max-w-5xl px-6 pt-32 pb-20">
+        <header className="mb-12 border-b border-zinc-100 pb-12">
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-black tracking-tight"
+            className="text-4xl font-medium tracking-tight text-zinc-950"
           >
-            Bridge the Gap. <br />
-            <span className="text-blue-500 italic">Sync Your Success.</span>
+            Optimize your resume for ATS.
           </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mt-4 max-w-2xl text-lg text-white/50"
-          >
-            GenSyncAI leverages advanced LLMs to align your career narrative with industry 
-            requirements, ensuring you pass every ATS hurdle with a professional LaTeX resume.
-          </motion.p>
+          <p className="mt-3 text-lg text-zinc-500">
+            A simple tool to align your experience with job requirements using AI.
+          </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          {/* Left: Input */}
+        <div className="grid grid-cols-1 gap-16 lg:grid-cols-2">
           <section>
             <InputSection onProcess={handleProcess} />
           </section>
 
-          {/* Right: Preview/Analysis */}
           <section className="lg:sticky lg:top-32 h-fit">
             <PreviewSection result={result} />
           </section>
         </div>
       </main>
-
-      {/* Decorative Elements */}
-      <div className="fixed top-0 left-1/4 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 blur-[120px]" />
-      <div className="fixed bottom-0 right-0 -z-10 h-[400px] w-[400px] translate-x-1/2 translate-y-1/2 rounded-full bg-purple-500/10 blur-[100px]" />
     </div>
   );
 }

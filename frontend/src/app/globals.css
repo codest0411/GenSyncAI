@@ -1,62 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-primary: #3b82f6;
-  --color-secondary: #8b5cf6;
-  --color-accent: #f472b6;
-  --color-glass: rgba(255, 255, 255, 0.03);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --font-sans: 'Inter', sans-serif;
-  
-  --background: #000000;
-  --foreground: #ffffff;
-  --primary: 59, 130, 246;
-  --secondary: 139, 92, 246;
+  --color-background: #ffffff;
+  --color-foreground: #09090b;
+  --color-primary: #18181b;
+  --color-secondary: #27272a;
+  --color-accent: #3f3f46;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --background: #ffffff;
+  --foreground: #09090b;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.01);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+.card-border {
+  border: 1px solid #e4e4e7;
 }
 
-.premium-gradient {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #f472b6 100%);
+.minimal-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
-.animate-glow {
-  animation: glow 4s ease-in-out infinite alternate;
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes glow {
-  0% { opacity: 0.3; }
-  100% { opacity: 0.8; }
+button:active {
+  transform: scale(0.98);
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #f4f4f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 4px;
+  background: #d4d4d8;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: #a1a1aa;
 }
