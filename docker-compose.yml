@@ -1,7 +1,7 @@
 services:
   n8n:
     image: n8nio/n8n:latest
-    container_name: gensyncai_n8n
+    container_name: gensyncai_main
     restart: always
     ports:
       - "5678:5678"
@@ -21,16 +21,9 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - ./workspace:/workspace
-      - /var/run/docker.sock:/var/run/docker.sock # Allows n8n to control the LaTeX container
-    user: root # Essential for docker socket permissions
-
-  latex:
-    image: blang/latex:ctanfull
-    container_name: gensyncai_latex
-    restart: always
-    volumes:
-      - ./workspace:/workspace
-    working_dir: /workspace
+    user: root # Essential to run pdflatex as root
+    # AUTO-INSTALL LATEX ON START (Instant Setup)
+    command: /usr/bin/env sh -c "apk add --no-cache texlive-full && n8n"
 
 volumes:
   n8n_data:
