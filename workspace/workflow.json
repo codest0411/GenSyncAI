@@ -1,0 +1,61 @@
+{
+  "name": "GenSyncAI_Final_Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9ea9eaa0-5fe6-4546-8ad9-1c8efe63d6ef",
+        "responseMode": "lastNode"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "prompt": "=JD: {{$json.jd}} \n\n Resume: {{$json.resume}}",
+        "systemPrompt": "You are an elite ATS Architect. Optimize the resume for the JD. Output ONLY valid JSON."
+      },
+      "name": "Groq AI Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainBasic",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "model": "llama3-8b-8192"
+      },
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [410, 520]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { execSync } = require('child_process');\nconst fs = require('fs');\nconst data = $json.text;\n\n// Generate LaTeX\nconst latex = `\\\\documentclass{article}\\\\begin{document} ${data} \\\\end{document}`;\nfs.writeFileSync('/workspace/resume.tex', latex);\n\n// Compile\ntry {\n  execSync('docker exec gensyncai_latex pdflatex -interaction=nonstopmode /workspace/resume.tex');\n} catch (e) {}\n\n// Return PDF Binary\nconst pdfBuffer = fs.readFileSync('/workspace/resume.pdf');\nreturn { binary: { data: { data: pdfBuffer.toString('base64'), fileName: 'resume.pdf', mimeType: 'application/pdf' } } };"
+      },
+      "name": "LaTeX Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseBody": "binary"
+        }
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Groq AI Chain", "type": "main", "index": 0 }]] },
+    "Groq Chat Model": { "ai_languageModel": [[{ "node": "Groq AI Chain", "type": "ai_languageModel", "index": 0 }]] },
+    "Groq AI Chain": { "main": [[{ "node": "LaTeX Engine", "type": "main", "index": 0 }]] },
+    "LaTeX Engine": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+  }
+}

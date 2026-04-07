@@ -1,48 +1,36 @@
-version: "3.8"
-
 services:
   n8n:
-    image: n8nio/n8n
+    image: n8nio/n8n:latest
     container_name: gensyncai_n8n
     restart: always
     ports:
       - "5678:5678"
     environment:
-      # Core config
-      - N8N_HOST=localhost
+      - N8N_HOST=127.0.0.1
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - NODE_ENV=production
-
-      # Security
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=gensync123
-
-      # Enable command execution (VERY IMPORTANT)
+      - N8N_CORS_ALLOWED_ORIGINS=*
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_BLOCK_NODES=
       - N8N_ENABLE_EXECUTE_COMMAND=true
-
-      # Timezone
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      - NODE_FUNCTION_ALLOW_EXTERNAL=*
       - GENERIC_TIMEZONE=Asia/Kolkata
-
-      # OpenAI (put your key)
       - OPENAI_API_KEY=your_api_key_here
-
     volumes:
-      - ./n8n_data:/home/node/.n8n
-      - ./workspace:/workspace   # 🔥 shared folder for files
+      - n8n_data:/home/node/.n8n
+      - ./workspace:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock # Allows n8n to control the LaTeX container
+    user: root # Essential for docker socket permissions
 
-    working_dir: /workspace
-
-  # Note: Compiling LaTeX inside n8n or a shared volume
-  # We use blang/latex for full CTAN support
   latex:
     image: blang/latex:ctanfull
     container_name: gensyncai_latex
+    restart: always
     volumes:
       - ./workspace:/workspace
     working_dir: /workspace
-    # This service is used as a tool by n8n
-    # n8n can call 'docker exec gensyncai_latex pdflatex resume.tex'
-    # IF the n8n container has docker access (socket binding)
-    # Alternatively, install pdflatex in n8n or use a shared script
+
+volumes:
+  n8n_data:
